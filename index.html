@@ -1,76 +1,403 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>My Portfolio</title>
-     <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
-    <header>
-      <h1>Akshay Kumar Kodi</h1>
-      <nav>
-        <a href="#about">About</a>
-        <a href="#skills">Skills</a>
-        <a href="#projects">Projects</a>
-        <a href="#contact">Contact</a>
-      </nav>
+<head>
+  <meta charset="UTF-8" />
+  <title>Interactive Task Manager</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      background: #f4f5fb;
+      padding: 40px 16px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 480px;
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      padding: 24px 20px 16px;
+    }
+
+    .app-header {
+      margin-bottom: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+
+    .app-title {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+
+    .task-count {
+      font-size: 13px;
+      color: #666;
+    }
+
+    .task-form {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .task-input {
+      flex: 1;
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid #ddd;
+      outline: none;
+      font-size: 14px;
+      transition: border 0.2s, box-shadow 0.2s;
+    }
+
+    .task-input:focus {
+      border-color: #4f46e5;
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+    }
+
+    .task-add-btn {
+      border: none;
+      border-radius: 999px;
+      padding: 10px 18px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      background: #4f46e5;
+      color: #fff;
+      transition: transform 0.1s, box-shadow 0.1s, background 0.2s;
+      white-space: nowrap;
+    }
+
+    .task-add-btn:hover {
+      background: #4338ca;
+      box-shadow: 0 8px 16px rgba(79, 70, 229, 0.3);
+      transform: translateY(-1px);
+    }
+
+    .task-add-btn:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+
+    .task-list {
+      list-style: none;
+      max-height: 320px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .task-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 10px;
+      margin-bottom: 4px;
+      border-radius: 10px;
+      transition: background 0.2s;
+    }
+
+    .task-item:hover {
+      background: #f5f5ff;
+    }
+
+    .task-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .task-checkbox {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+
+    .task-text {
+      font-size: 14px;
+      word-break: break-word;
+    }
+
+    .task-text.completed {
+      text-decoration: line-through;
+      color: #999;
+    }
+
+    .delete-btn {
+      border: none;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      background: #fee2e2;
+      color: #b91c1c;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .delete-btn:hover {
+      background: #fecaca;
+      transform: translateY(-1px);
+    }
+
+    .empty-state {
+      text-align: center;
+      font-size: 13px;
+      color: #777;
+      padding: 20px 0 8px;
+    }
+
+    .footer {
+      margin-top: 8px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #666;
+    }
+
+    .filter-btns {
+      display: flex;
+      gap: 4px;
+    }
+
+    .filter-btn {
+      border-radius: 999px;
+      border: 1px solid #ddd;
+      padding: 2px 8px;
+      font-size: 11px;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    .filter-btn.active {
+      background: #4f46e5;
+      color: #fff;
+      border-color: #4f46e5;
+    }
+
+    .clear-btn {
+      border: none;
+      background: transparent;
+      font-size: 11px;
+      text-decoration: underline;
+      cursor: pointer;
+      color: #444;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <div class="app-title">Task Manager</div>
+      <div class="task-count" id="task-count">0 tasks</div>
     </header>
 
-    <main>
-      <section id="about">
-        <h2>About</h2>
-        <p>iam a passionate Web developer, AI enthusiast and  Ethical Hacker.</p>
-      </section>
+    <!-- Add Task -->
+    <form class="task-form" id="task-form">
+      <input
+        type="text"
+        id="task-input"
+        class="task-input"
+        placeholder="Add a new task and press Enter…"
+        autocomplete="off"
+      />
+      <button type="submit" class="task-add-btn">Add</button>
+    </form>
 
-      <section id="skills">
-        <h2>Skills</h2>
-        <ul>
-          <li>HTML</li>
-          <li>CSS</li>
-          <li>JavaScript</li>
-          <li>React.js</li>
-          <li>Node.js</li>
-          <li>Express.js</li>
-          <li>Mongodb</li>
-          <li>AWS</li>
-          <li>python</li>
-        </ul>
-      </section>
+    <!-- Task List -->
+    <ul class="task-list" id="task-list"></ul>
+    <div class="empty-state" id="empty-state">No tasks yet. Add your first one!</div>
 
-      <section id="projects">
-        <h2>Projects</h2>
-        <article>
-          <h3>AI IMAGE DETECTION</h3>
-          <p>this project will indentify whether the selected image is Ai generated or real Image.</p>
-          <p>Tech:Python, AI, MachineLearning, DeepLearning, TensorFlow, ComputerVision, AIethics </p>
-          <a href="https://github.com/KodiAkshayKumar/ai_image_detection">View on GitHub</a>
-        </article>
-        <h2>Projects</h2>
-        <article>
-          <h3>MNREGA-ANDHRA PRADESH</h3>
-          <p>this project will gives the users a detailed information of mnrega work data across the andhrapradesh state.</p>
-          <p>Tech: HTML, CSS, JS, Node.js, Mongodb</p>
-          <a href="https://github.com/KodiAkshayKumar/MGNREGA-PROJECT">View on GitHub</a>
-        </article>
-        <article>
-          <h3>GYM TRACKER</h3>
-          <p>
-This project is a small step toward smart fitness assistants that give real-time guidance and motivation.</p>
-          <p>Tech: Python, OpenCV, MediaPipe, AI, ComputerVision, FitnessTech, PoseEstimation, MachineLearning</p>
-          <a href="https://github.com/KodiAkshayKumar/python-projects/blob/master/gym.py">View on GitHub</a>
-        </article>
-        
-      </section>
+    <!-- Footer: filters + clear completed -->
+    <div class="footer">
+      <div class="filter-btns">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="active">Active</button>
+        <button class="filter-btn" data-filter="completed">Completed</button>
+      </div>
+      <button class="clear-btn" id="clear-completed">Clear completed</button>
+    </div>
+  </div>
 
-      <section id="contact">
-        <h2>Contact</h2>
-        <p>Email: akshay73373@gmail.com</p>
-        <p>Phone: 7337392991</p>
-      </section>
-    </main>
+  <script>
+    // ====== SELECT ELEMENTS ======
+    const taskForm = document.getElementById("task-form");
+    const taskInput = document.getElementById("task-input");
+    const taskList = document.getElementById("task-list");
+    const taskCount = document.getElementById("task-count");
+    const emptyState = document.getElementById("empty-state");
+    const filterButtons = document.querySelectorAll(".filter-btn");
+    const clearCompletedBtn = document.getElementById("clear-completed");
 
-    <footer>
-      <p>© 2025 akshaykumar</p>
-    </footer>
-  </body>
+    // Array to hold tasks in memory
+    // Each task: { id: number, text: string, completed: boolean }
+    let tasks = [];
+    let currentFilter = "all"; // 'all' | 'active' | 'completed'
+    let nextId = 1;
+
+    // ====== HELPER FUNCTIONS ======
+    function updateTaskCount() {
+      const total = tasks.length;
+      if (total === 0) {
+        taskCount.textContent = "0 tasks";
+      } else if (total === 1) {
+        taskCount.textContent = "1 task";
+      } else {
+        taskCount.textContent = total + " tasks";
+      }
+    }
+
+    function updateEmptyState() {
+      emptyState.style.display = tasks.length === 0 ? "block" : "none";
+    }
+
+    function createTaskElement(task) {
+      const li = document.createElement("li");
+      li.className = "task-item";
+      li.dataset.id = task.id;
+
+      // Left: checkbox + text
+      const left = document.createElement("div");
+      left.className = "task-left";
+
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.className = "task-checkbox";
+      checkbox.checked = task.completed;
+
+      const span = document.createElement("span");
+      span.className = "task-text";
+      span.textContent = task.text;
+      if (task.completed) {
+        span.classList.add("completed");
+      }
+
+      left.appendChild(checkbox);
+      left.appendChild(span);
+
+      // Right: delete button
+      const deleteBtn = document.createElement("button");
+      deleteBtn.className = "delete-btn";
+      deleteBtn.textContent = "Delete";
+
+      li.appendChild(left);
+      li.appendChild(deleteBtn);
+
+      return li;
+    }
+
+    function renderTasks() {
+      taskList.innerHTML = "";
+
+      const filteredTasks = tasks.filter((task) => {
+        if (currentFilter === "active") return !task.completed;
+        if (currentFilter === "completed") return task.completed;
+        return true; // all
+      });
+
+      filteredTasks.forEach((task) => {
+        const taskElement = createTaskElement(task);
+        taskList.appendChild(taskElement);
+      });
+
+      updateTaskCount();
+      updateEmptyState();
+    }
+
+    // ====== CORE OPERATIONS ======
+    function addTask(text) {
+      const trimmed = text.trim();
+      if (trimmed === "") return;
+
+      const newTask = {
+        id: nextId++,
+        text: trimmed,
+        completed: false,
+      };
+
+      tasks.push(newTask);
+      taskInput.value = "";
+      renderTasks();
+    }
+
+    function toggleTask(id) {
+      tasks = tasks.map((task) =>
+        task.id === id ? { ...task, completed: !task.completed } : task
+      );
+      renderTasks();
+    }
+
+    function deleteTask(id) {
+      tasks = tasks.filter((task) => task.id !== id);
+      renderTasks();
+    }
+
+    function clearCompleted() {
+      tasks = tasks.filter((task) => !task.completed);
+      renderTasks();
+    }
+
+    function setFilter(filter) {
+      currentFilter = filter;
+      filterButtons.forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.filter === filter);
+      });
+      renderTasks();
+    }
+
+    // ====== EVENT LISTENERS ======
+
+    // Add task (form submit)
+    taskForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      addTask(taskInput.value);
+    });
+
+    // Handle clicks inside the list using event delegation
+    taskList.addEventListener("click", function (e) {
+      const listItem = e.target.closest(".task-item");
+      if (!listItem) return;
+
+      const id = Number(listItem.dataset.id);
+
+      // Toggle complete via checkbox
+      if (e.target.classList.contains("task-checkbox")) {
+        toggleTask(id);
+      }
+
+      // Delete button
+      if (e.target.classList.contains("delete-btn")) {
+        deleteTask(id);
+      }
+    });
+
+    // Filters (All / Active / Completed)
+    filterButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        setFilter(btn.dataset.filter);
+      });
+    });
+
+    // Clear completed tasks
+    clearCompletedBtn.addEventListener("click", () => {
+      clearCompleted();
+    });
+
+    // Initial render
+    renderTasks();
+  </script>
+</body>
 </html>
